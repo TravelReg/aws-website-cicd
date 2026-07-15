@@ -1,89 +1,53 @@
 # AWS Website CI/CD Project
 
-This project is a simple AWS-hosted static website with a visitor counter feature. It demonstrates how to deploy a front-end site to Amazon S3 and CloudFront, connect it to a serverless API, and automate deployment with GitHub Actions.
+This project is a simple AWS-hosted static website with a visitor counter. It shows how to deploy a front-end app to Amazon S3 and CloudFront, connect it to a serverless API, and automate deployments with GitHub Actions.
 
-## What this project does
+## What it does
 
-- Serves a static webpage from the `website/` folder.
-- Displays a live visitor count fetched from an API endpoint.
-- Uses AWS Lambda to update and return the count from DynamoDB.
-- Provisions the supporting AWS infrastructure with Terraform.
-- Deploys the site automatically to AWS when changes are pushed to the `main` branch.
+- Serves the website from the `website/` folder.
+- Fetches a visitor count from an API endpoint.
+- Uses AWS Lambda and DynamoDB to update and store that count.
+- Provisions the AWS resources with Terraform.
 
 ## Architecture
 
-The solution combines several AWS services:
+The app uses:
 
-- Amazon S3: stores the static website files.
-- Amazon CloudFront: delivers the site globally with HTTPS.
-- API Gateway: exposes an HTTP endpoint for the counter API.
-- AWS Lambda: handles the counter update logic.
-- Amazon DynamoDB: stores the visitor count.
-- Terraform: provisions the AWS resources.
-- GitHub Actions: automates deployment from GitHub to AWS.
+- Amazon S3 for static website storage
+- Amazon CloudFront for global delivery
+- API Gateway for the HTTP endpoint
+- AWS Lambda for the counter logic
+- Amazon DynamoDB for persistent counting
+- Terraform for infrastructure as code
 
 ## Project structure
 
 ```text
 .
-├── .github/
-│   └── workflows/
-│       └── deploy.yaml      # GitHub Actions deployment workflow
-├── terraform/               # Terraform configuration for AWS resources
-│   ├── acm.tf
-│   ├── apigateway.tf
-│   ├── cloudfront.tf
-│   ├── dynamodb.tf
-│   ├── iam.tf
-│   ├── lambda.tf
-│   ├── main.tf
-│   ├── outputs.tf
-│   ├── providers.tf
-│   ├── route53.tf
-│   ├── s3.tf
-│   ├── variables.tf
-│   └── lambda/
-│       └── lambda_function.py
-└── website/                 # Static website files
-    ├── index.html
-    ├── script.js
-    └── style.css
+├── .github/workflows/deploy.yaml
+├── terraform/            # AWS infrastructure definitions
+├── website/              # Static website files
+└── README.md
 ```
 
 ## How it works
 
-1. The webpage in `website/` loads a JavaScript file that calls the API Gateway endpoint.
-2. API Gateway routes the request to an AWS Lambda function.
-3. The Lambda function increments the visitor count in a DynamoDB table.
-4. The updated count is returned as JSON to the webpage.
-5. The static site is published to S3 and cached through CloudFront.
+1. The webpage calls the API Gateway endpoint from JavaScript.
+2. API Gateway forwards the request to AWS Lambda.
+3. Lambda updates the DynamoDB item and returns the new count.
+4. The page displays the returned value.
+5. The static site is published to S3 and served through CloudFront.
 
-## Infrastructure as Code
+## CI/CD pipeline
 
-The Terraform files in `terraform/` define the AWS resources needed for this project. These include:
+The GitHub Actions workflow in `.github/workflows/deploy.yaml` runs on pushes to the `main` branch.
 
-- S3 bucket for website hosting
-- CloudFront distribution
-- API Gateway HTTP API
-- Lambda function
-- IAM role and permissions
-- DynamoDB table
-- Optional DNS and ACM resources depending on your configuration
+It performs two main steps:
 
-To deploy or update infrastructure, run Terraform from the `terraform/` directory:
+- Configures AWS credentials from GitHub secrets.
+- Uploads the website files to the target S3 bucket and invalidates the CloudFront cache.
 
-```bash
-cd terraform
-terraform init
-terraform plan
-terraform apply
-```
-
-## CI/CD deployment
-
-The GitHub Actions workflow in `.github/workflows/deploy.yaml` deploys the contents of `website/` to the configured S3 bucket whenever changes are pushed to `main`.
-
-It expects the following GitHub repository secrets:
+Required repository secrets:
 
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
@@ -91,11 +55,19 @@ It expects the following GitHub repository secrets:
 - `S3_BUCKET`
 - `CLOUDFRONT_DISTRIBUTION_ID`
 
+## Infrastructure deployment
+
+From the `terraform/` directory, run:
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
 ## Local preview
 
-You can preview the website locally by opening `website/index.html` in a browser, or by serving the folder with a simple local web server.
-
-Example:
+Run:
 
 ```bash
 cd website
@@ -103,9 +75,3 @@ python3 -m http.server 8000
 ```
 
 Then open `http://localhost:8000`.
-
-## Notes
-
-- The visitor counter is a simple example and is intended for learning and demonstration purposes.
-- The Lambda function uses the AWS SDK for Python (`boto3`) to update DynamoDB.
-- The project is designed to be easy to understand and extend.
