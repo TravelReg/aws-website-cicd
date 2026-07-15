@@ -1,6 +1,6 @@
 # AWS Website CI/CD Project
 
-This project is a simple AWS-hosted static website with a visitor counter. It shows how to deploy a front-end app to Amazon S3 and CloudFront, connect it to a serverless API, and automate deployments with GitHub Actions.
+This project is an AWS-hosted static website with a visitor counter. It shows how to deploy a front-end app to Amazon S3 and CloudFront, connect it to a serverless API, and automate deployments with GitHub Actions.
 
 ## What it does
 
